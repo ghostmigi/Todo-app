@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import Todo from "./Todo";
 import "./App.css";
 import db from "./firebase";
+import firebase from "firebase";
 
 function App() {
   const [todos, setTodos] = useState([]);
@@ -10,13 +11,21 @@ function App() {
 
   // when the app loads we need to listen to the database and fetch new todos
   useEffect(() => {
-    db.collection("todos").onSnapshot((snapshot) => {
-      setTodos(snapshot.docs.map((doc) => doc.data().todo));
-    });
+    db.collection("todos")
+      .orderBy("timestamp", "desc")
+      .onSnapshot((snapshot) => {
+        setTodos(snapshot.docs.map((doc) => doc.data().todo));
+      });
   }, []);
 
   const addTodo = (event) => {
     event.preventDefault(); // Will stop the refresh
+
+    db.collection("todos").add({
+      todo: input,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+    });
+
     setTodos([...todos, input]);
     setInput(""); // will clear the input after push button
   };
