@@ -4,6 +4,7 @@ import Todo from "./Todo";
 import "./App.css";
 import db from "./firebase";
 import firebase from "firebase";
+import "./Todo.css";
 
 function App() {
   const [todos, setTodos] = useState([]);
@@ -14,7 +15,9 @@ function App() {
     db.collection("todos")
       .orderBy("timestamp", "desc")
       .onSnapshot((snapshot) => {
-        setTodos(snapshot.docs.map((doc) => doc.data().todo));
+        setTodos(
+          snapshot.docs.map((doc) => ({ id: doc.id, todo: doc.data().todo }))
+        );
       });
   }, []);
 
@@ -32,7 +35,7 @@ function App() {
 
   return (
     <div className="App">
-      <h1>Hey Coder !</h1>
+      <h1>TODO !</h1>
       <form>
         <FormControl>
           <InputLabel>✅ Write a Todo</InputLabel>
@@ -50,11 +53,13 @@ function App() {
           Add Todo
         </Button>
       </form>
-      <ul>
-        {todos.map((todo) => (
-          <Todo text={todo} />
-        ))}
-      </ul>
+      <div className="box">
+        <ul>
+          {todos.map((todo) => (
+            <Todo todo={todo} />
+          ))}
+        </ul>
+      </div>
     </div>
   );
 }
